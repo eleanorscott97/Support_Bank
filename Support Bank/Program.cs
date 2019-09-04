@@ -8,12 +8,15 @@ namespace Support_Bank
     {
         static void Main(string[] args)
         {
+            var parser = new Parser();
             var transactions = new List<Transaction>();
             var accounts = new List<Account>();
             // open cvs file
             string path = @"C:\Work\Training\Support Bank\Transactions2014.csv";
 
-            foreach(string s in File.ReadAllLines(path))
+            var transactions = parser.ParseCsvFile(path);
+
+            foreach (string s in File.ReadAllLines(path))
             {
                 var transaction = new Transaction();
                 string[] data = s.Split(',');
@@ -25,11 +28,27 @@ namespace Support_Bank
 
                 transactions.Add(transaction);
             }
-            foreach(var r in transactions)
+
+            foreach(var transaction in transactions)
             {
-                accounts.Find(a => a.Name == r.Reciever);
-                //is there already an account name
-                if()
+                if(accounts.Find(a => a.Name == transaction.Sender) == null)
+                {
+                    var accountSender = new Account();
+                    accountSender.Name = transaction.Sender;
+                    accountSender.Balance = -transaction.Amount;
+                    accounts.Add(accountSender);
+                }
+                else if(accounts.Find(a => a.Name == transaction.Reciever) == null)
+                {
+                    var accountReciever = new Account();
+                    accountReciever.Name = transaction.Reciever;
+                    accountReciever.Balance = 0;
+                    accounts.Add(accountReciever);
+                }
+                else
+                {
+
+                }
                 //check who is paying money (what the debt is)
 
             }
