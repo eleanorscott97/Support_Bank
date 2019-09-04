@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Support_Bank
 {
@@ -8,7 +9,7 @@ namespace Support_Bank
         public List<Transaction> ParseCsvFile(string path)
         {
             var transactions = new List<Transaction>();
-            foreach (string s in File.ReadAllLines(path))
+            foreach (string s in File.ReadAllLines(path).Skip(1))
             {
                 var transaction = new Transaction();
                 string[] data = s.Split(',');

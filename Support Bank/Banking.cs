@@ -10,9 +10,9 @@ namespace Support_Bank
         public Account FindOrCreateAccount(string accountName)
         {
 
-            bool CheckAccountName(Account account)
+            bool CheckAccountName(Account a)
             {
-                return account.Name == accountName;
+                return a.Name == accountName;
             }
 
             var account = accounts.Find(CheckAccountName);
@@ -22,9 +22,11 @@ namespace Support_Bank
             }
             else
             {
-                account = new Account();
-                account.Name = accountName;
-                account.Balance = 0;
+                account = new Account
+                {
+                    Name = accountName,
+                    Balance = 0
+                };
                 accounts.Add(account);
                 return account;
             }
