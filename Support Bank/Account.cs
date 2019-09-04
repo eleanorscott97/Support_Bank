@@ -3,11 +3,16 @@
     public class Account
     {
         public string Name;
-        private int Balance;
+        public decimal Balance;
 
-        public void AddDebt(int debt)
+        public void AddDebt(decimal debt)
         {
             Balance = Balance - debt;
         }
+        public void GainMonies(decimal money)
+        {
+            Balance = Balance + money;
+        }
+            
     }
 }

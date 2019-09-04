@@ -6,6 +6,6 @@
         public string Sender;
         public string Reciever;
         public string Reason;
-        public int Amount;
+        public decimal Amount;
     }
 }
