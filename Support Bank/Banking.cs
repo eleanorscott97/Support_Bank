@@ -12,15 +12,12 @@ namespace Support_Bank
         {
             logger = LogManager.GetLogger("Banking");
         }
-
         public Account FindOrCreateAccount(string accountName)
         {
-
             bool CheckAccountName(Account a)
             {
                 return a.Name == accountName;
             }
-
             var account = accounts.Find(CheckAccountName);
             if(account != null)
             {
@@ -28,8 +25,6 @@ namespace Support_Bank
             }
             else
             {
-
-                throw new Exception("Thing went wrong");
                 account = new Account
                 {
                     Name = accountName,
@@ -38,7 +33,27 @@ namespace Support_Bank
                 accounts.Add(account);
                 return account;
             }
+        }
+        public void UpdateBalances(List<Transaction> transactions)
+        {
+            try
+            {
+                logger.Info("Updating balances");
+                foreach (var transaction in transactions)
+                {
+                    var SenderAccount = FindOrCreateAccount(transaction.Sender);
+                    var RecieverAccount = FindOrCreateAccount(transaction.Reciever);
+                    SenderAccount.Balance -= transaction.Amount;
+                    RecieverAccount.Balance += transaction.Amount;
+                }
+                logger.Info("Balances updated");
+            }
+            catch(Exception e)
+            {
+                logger.Error("Couldn't update balances");
+                Console.WriteLine(e.Message);
 
+            }
         }
 
     }

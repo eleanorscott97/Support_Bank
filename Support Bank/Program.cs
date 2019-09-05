@@ -22,7 +22,7 @@ namespace Support_Bank
                 var parser = new Parser();
                 var banking = new Banking();
 
-                string path = @"C:\Work\Training\Support Bank\Transactions2014.csv";
+                string path = @"C:\Work\Training\Support_Bank\DodgyTransactions2015.csv";
                 var transactions = parser.ParseCsvFile(path);
                 banking.UpdateBalances(transactions);
                 while (true)
@@ -48,12 +48,13 @@ namespace Support_Bank
                 Console.WriteLine(e.Message);
                 var logger = LogManager.GetLogger("SupportBank");
                 logger.Fatal(e.Message);
-                throw new PathTooLongException("Mesasge", e);
             }
         }
 
         private static UserInput GetUserInput()
         {
+            var logger = LogManager.GetLogger("UserInput");
+            logger.Info("Getting user input"); 
             Console.WriteLine("What information would you like? (List All; List [User]) ");
             var input = Console.ReadLine();
             if (input == "List All")
@@ -71,6 +72,7 @@ namespace Support_Bank
                     Target = input.Substring(5)
                 };
             }
+            logger.Error("Invalid user input given");
             return null;
         }
         private static void DisplayNameAndBalance(Banking banking)
