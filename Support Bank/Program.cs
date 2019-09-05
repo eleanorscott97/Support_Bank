@@ -1,4 +1,7 @@
-﻿using System;
+﻿using NLog;
+using NLog.Config;
+using NLog.Targets;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -8,29 +11,47 @@ namespace Support_Bank
     {
         static void Main(string[] args)
         {
-            var parser = new Parser();
-            var banking = new Banking();
-
-            string path = @"C:\Work\Training\Support Bank\Transactions2014.csv";
-            var transactions = parser.ParseCsvFile(path);
-            UpdateBalances(transactions, banking);
-            while (true)
+            try
             {
-                var input = GetUserInput();
-                if (input.Type == CommandType.ListAll)
+                var config = new LoggingConfiguration();
+                var target = new FileTarget { FileName = @"C:\Work\Logs\SupportBank.log", Layout = @"${longdate} ${level} - ${logger}: ${message}" };
+                config.AddTarget("File Logger", target);
+                config.LoggingRules.Add(new LoggingRule("*", LogLevel.Debug, target));
+                LogManager.Configuration = config;
+
+                var parser = new Parser();
+                var banking = new Banking();
+
+                string path = @"C:\Work\Training\Support Bank\Transactions2014.csv";
+                var transactions = parser.ParseCsvFile(path);
+                banking.UpdateBalances(transactions);
+                while (true)
                 {
-                    NameAndBalance(banking);
-                }
-                else if (input.Type == CommandType.ListSingle)
-                {
-                    DateReasonAndAmount(transactions, input);
-                }
-                else
-                {
-                    Console.WriteLine("Input was invalid");
+                    var input = GetUserInput();
+                    if (input.Type == CommandType.ListAll)
+                    {
+                        DisplayNameAndBalance(banking);
+                    }
+                    else if (input.Type == CommandType.ListSingle)
+                    {
+                        DisplayDateReasonAndAmount(transactions, input);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Input was invalid");
+                    }
                 }
             }
+            catch(Exception e)
+            {
+                Console.WriteLine("The program encountered a fatal error and needs to close");
+                Console.WriteLine(e.Message);
+                var logger = LogManager.GetLogger("SupportBank");
+                logger.Fatal(e.Message);
+                throw new PathTooLongException("Mesasge", e);
+            }
         }
+
         private static UserInput GetUserInput()
         {
             Console.WriteLine("What information would you like? (List All; List [User]) ");
@@ -52,24 +73,14 @@ namespace Support_Bank
             }
             return null;
         }
-        private static void UpdateBalances( List<Transaction> transactions, Banking banking)
-        {
-            foreach (var transaction in transactions)
-            {
-                var SenderAccount = banking.FindOrCreateAccount(transaction.Sender);
-                var RecieverAccount = banking.FindOrCreateAccount(transaction.Reciever);
-                SenderAccount.Balance -= transaction.Amount;
-                RecieverAccount.Balance += transaction.Amount;
-            }
-        }
-        private static void NameAndBalance(Banking banking)
+        private static void DisplayNameAndBalance(Banking banking)
         {
             foreach (var account in banking.accounts)
             {
                 Console.WriteLine("Name:" + account.Name + ", Account Balance:" + account.Balance);
             }
         }
-        private static void DateReasonAndAmount(List<Transaction> transactions, UserInput input)
+        private static void DisplayDateReasonAndAmount(List<Transaction> transactions, UserInput input)
         {
             foreach (Transaction transaction in transactions)
             {

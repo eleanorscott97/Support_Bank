@@ -1,11 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using NLog;
+using System;
+using System.Collections.Generic;
 
 namespace Support_Bank
 {
     public class Banking
     {
         public List<Account> accounts = new List<Account>();
-
+        private readonly Logger logger;
+        public Banking()
+        {
+            logger = LogManager.GetLogger("Banking");
+        }
 
         public Account FindOrCreateAccount(string accountName)
         {
@@ -22,6 +28,8 @@ namespace Support_Bank
             }
             else
             {
+
+                throw new Exception("Thing went wrong");
                 account = new Account
                 {
                     Name = accountName,
