@@ -13,46 +13,28 @@ namespace Support_Bank
 
             string path = @"C:\Work\Training\Support Bank\Transactions2014.csv";
             var transactions = parser.ParseCsvFile(path);
-
-            foreach(var transaction in transactions)
+            UpdateBalances(transactions, banking);
+            while (true)
             {
-                //find sender account
-                var accountS = banking.FindOrCreateAccount(transaction.Sender);
-                var accountR = banking.FindOrCreateAccount(transaction.Reciever);
-                //change balances
-                accountS.Balance += -transaction.Amount;
-                accountR.Balance += transaction.Amount;
-            }
-
-            var input = GetUserInput();
-            if(input.Type == CommandType.ListAll)
-            {
-                foreach(var account in banking.accounts)
+                var input = GetUserInput();
+                if (input.Type == CommandType.ListAll)
                 {
-                    Console.WriteLine("Name:" + account.Name + ", Account Balance:" + account.Balance);
+                    NameAndBalance(banking);
                 }
-            }
-            else if(input.Type == CommandType.ListSingle)
-            {
-                foreach(Transaction transaction in transactions)
+                else if (input.Type == CommandType.ListSingle)
                 {
-                    if((transaction.Sender == input.Target || (transaction.Reciever == input.Target)))
-                    {
-                        Console.WriteLine("Date:" + transaction.Date + ", Reason:" + transaction.Reason +", Amount:" + transaction.Amount);
-                    }
+                    DateReasonAndAmount(transactions, input);
                 }
-            }
-            else
-            {
-                string[] Name = Console.ReadLine().Split('[',']');
+                else
+                {
+                    Console.WriteLine("Input was invalid");
+                }
             }
         }
-
         private static UserInput GetUserInput()
         {
             Console.WriteLine("What information would you like? (List All; List [User]) ");
             var input = Console.ReadLine();
-
             if (input == "List All")
             {
                 return new UserInput
@@ -60,8 +42,7 @@ namespace Support_Bank
                     Type = CommandType.ListAll
                 };
             }
-
-            if(input.StartsWith("List "))
+            if (input.StartsWith("List "))
             {
                 return new UserInput
                 {
@@ -69,20 +50,34 @@ namespace Support_Bank
                     Target = input.Substring(5)
                 };
             }
-
             return null;
         }
-    }
-
-    public class UserInput
-    {
-        public CommandType Type { get; set; }
-        public string Target { get; set; }
-    }
-
-    public enum CommandType
-    {
-        ListAll,
-        ListSingle
+        private static void UpdateBalances( List<Transaction> transactions, Banking banking)
+        {
+            foreach (var transaction in transactions)
+            {
+                var SenderAccount = banking.FindOrCreateAccount(transaction.Sender);
+                var RecieverAccount = banking.FindOrCreateAccount(transaction.Reciever);
+                SenderAccount.Balance -= transaction.Amount;
+                RecieverAccount.Balance += transaction.Amount;
+            }
+        }
+        private static void NameAndBalance(Banking banking)
+        {
+            foreach (var account in banking.accounts)
+            {
+                Console.WriteLine("Name:" + account.Name + ", Account Balance:" + account.Balance);
+            }
+        }
+        private static void DateReasonAndAmount(List<Transaction> transactions, UserInput input)
+        {
+            foreach (Transaction transaction in transactions)
+            {
+                if ((transaction.Sender == input.Target || (transaction.Reciever == input.Target)))
+                {
+                    Console.WriteLine("Date:" + transaction.Date + ", Reason:" + transaction.Reason + ", Amount:" + transaction.Amount);
+                }
+            }
+        }
     }
 }
